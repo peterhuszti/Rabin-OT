@@ -21,17 +21,6 @@ bool binary::powerOf2() const
     return (c == 1);
 }
 
-void binary::setNumberFromCharArray(const char* c)
-{
-    for(int i=0; i<number.size(); ++i)
-    {
-        for(int j=7; j>=0; --j)
-        {
-            number[i] = (c[i] >> j) & 0x1;
-        }
-    }
-}
-
 binary& binary::operator=(const binary& other)
 {
     if(this != &other)

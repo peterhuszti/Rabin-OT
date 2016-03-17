@@ -21,8 +21,6 @@ public:
     bool getNumberAt(int k) const { return number[k]; }
     void setNumberAt(int k, bool b) { number[k] = b; }
 
-    void setNumberFromCharArray(const char*);
-
     void fill(int); // fill the number with 0-s
     bool powerOf2() const; // decides if the number is power of 2 or not
 

@@ -4,19 +4,19 @@
 
 #define SIZEOF_MESSAGE 8
 #define SECRETS true
-#define DEBUG true
+#define DEBUG false
 
 void printBinary(const binary&);
-bool generateSecret();
+bool generateSecret(); // generates a random bit
 binary generateRandom(int, const binary& = binary());
 std::pair<int, int> generatePrimes();
 binary generateE(const binary&);
-binary convertDecToBin(long long int);
-long long int convertBinToDec(const binary&);
-binary computeD(const binary&, const binary&);
+binary convertDecToBin(long long int); // decimal -> binary converter
+long long int convertBinToDec(const binary&); // binary -> decimal converter
+binary computeD(const binary&, const binary&); // extended Euclidean alg.
 binary RSA(const binary&, const binary&, const binary&);
-binary lsb(const binary&);
-binary chooseRs(const binary&, const binary&);
+binary lsb(const binary&); // least significant bit
+binary chooseRs(const binary&, const binary&); // chooses which secret we want (now always returns first param)
 bool computeWantedSecret(const binary&, const binary&);
 void correctBit(binary&);
 

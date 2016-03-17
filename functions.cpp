@@ -5,7 +5,9 @@
 #include <chrono>
 #include <thread>
 
-#define MAX_OF_PQ 100
+#define PRIME_MAGNITUDE 10000
+#define ACCURACY 10
+#define CHOOSE 1
 
 void printBinary(const binary& x)
 {
@@ -34,7 +36,7 @@ bool powerOf2 (long long int x) // decides if the number is power of 2 or not
     return (x == 1);
 }
 
-binary convertDecToBin(long long int x) // decimal -> binary converter
+binary convertDecToBin(long long int x)
 {
     binary result;
 
@@ -84,7 +86,7 @@ binary convertDecToBin(long long int x) // decimal -> binary converter
     return result;
 }
 
-long long int convertBinToDec(const binary& x) // binary -> decimal converter
+long long int convertBinToDec(const binary& x)
 {
     long long int result = 0;
 
@@ -231,48 +233,87 @@ binary operator*(const binary& left, const binary& right)
     return result;
 }
 
-binary power(const binary& x, int n)
+long long int modExp(long long int base, long long int exponent, long long int mod)
+// modular exponentation
 {
-    binary y = convertDecToBin(1);
-    if(n == 0) return y;
+    long long int result = 1;
 
-// exponentiation by squaring
-    binary temp = x;
-    while(n>1)
+    base = base % mod;
+    while(exponent > 0)
     {
-        if(n%2 == 0)
+        if(exponent % 2 == 1)
         {
-            n /= 2;
+            result = (result * base) % mod;
         }
-        else
-        {
-            y = y * temp;
-            n = (n-1) / 2;
-        }
-        temp = temp * temp;
+        exponent = exponent >> 1;
+        base = (base * base) % mod;
     }
 
-    return y * temp;
+    return result;
 }
 
-bool generateSecret() // generates a random bit
+binary RSA(const binary& base, const binary& exponent, const binary& mod)
+{
+    long long int result = 1;
+    long long int baseInt = convertBinToDec(base);
+    long long int exponentInt = convertBinToDec(exponent);
+    long long int modInt = convertBinToDec(mod);
+
+    result = modExp(baseInt, exponentInt, modInt);
+
+    return convertDecToBin(result);
+}
+
+int generateRandom() // Mersenne twister
 {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 secret(seed); // Mersenne twister
-    return secret()%2;
+    std::mt19937 x(seed);
+
+    return abs(x());
 }
 
-bool isPrime(int x, int accuracy) // Miller-Rabin test
+bool generateSecret()
+{
+    return generateRandom()%2;
+}
+
+bool isPrime(int x) // Miller-Rabin test
 {
     if(x < 3 || x%2 == 0) return false;
 
     int temp = x-1;
-    int d = 0;
-    while(temp % 2 == 0)
+    int r = 2;
+    while(temp % r == 0)
     {
-
+        r *= 2;
     }
+    r /= 2;
+    int d = temp / r;
 
+    for(int i=0; i<ACCURACY; ++i)
+    {
+        int a = generateRandom();
+        int y = modExp(a, d, x);
+
+        if(y == 1 || y == x-1)
+        {
+            continue;
+        }
+        for(int j=0; j<r-1; ++j)
+        {
+            y = modExp(y, 2, x);
+            if(y == 1)
+            {
+                return false;
+            }
+            if(y == x-1)
+            {
+                break;
+            }
+        }
+        return false;
+    }
+    return true;
 }
 
 std::pair<int, int> generatePrimes() // generates two 2-digit distinct primes
@@ -280,19 +321,15 @@ std::pair<int, int> generatePrimes() // generates two 2-digit distinct primes
     int p, q;
     do
     {
-        unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
-        std::mt19937 prime1(seed1);
-        p = prime1() % (MAX_OF_PQ + 1);
-    } while(!isPrime(p, 10));
+        p = generateRandom() % (PRIME_MAGNITUDE + 1);
+    } while(!isPrime(p));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    unsigned seed2 = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 prime2(seed2);
-    q = prime2() % (MAX_OF_PQ + 1);
+    q = generateRandom() % (PRIME_MAGNITUDE + 1);
 
-    while(p == q || !isPrime(q, 10));
+    while(p == q || !isPrime(q))
     {
-        q += 2;
+        if(q%2 == 0) q++;
+        else q += 2;
     }
 
     if(p > q)
@@ -305,7 +342,7 @@ std::pair<int, int> generatePrimes() // generates two 2-digit distinct primes
     std::pair<int, int> result;
     result.first = p;
     result.second = q;
-std::cout << "\n\n\n" << p << " " << q << "\n\n\n";
+
     return result;
 }
 
@@ -330,9 +367,7 @@ binary generateE(const binary& x) // finds a coprime to x (result < x)
 
     do
     {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        std::mt19937 secret(seed);
-        coprime = secret()%1000;
+        coprime = generateRandom()%1000;
     } while(coprime > y || gcd(coprime, y) != 1);
 
     result = convertDecToBin(coprime);
@@ -360,7 +395,6 @@ binary generateRandom(int size, const binary& n = binary()) // generates random 
         for(int i=0; i<size; ++i)
         {
             result.setNumberAt(i, generateSecret());
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         resultInt = convertBinToDec(result);
     } while(resultInt == 0 || gcd(resultInt, nInt) != 1);
@@ -368,12 +402,13 @@ binary generateRandom(int size, const binary& n = binary()) // generates random 
     return result;
 }
 
-binary chooseRs(const binary& a, const binary& b) // chooses which secret we want
+binary chooseRs(const binary& a, const binary& b)
 {
-    return a;
+    if(CHOOSE == 1) return a;
+    else return b;
 }
 
-binary computeD(const binary& e, const binary& fiN) // extended Euclidean alg.
+binary computeD(const binary& e, const binary& fiN)
 {
     long long int xn, xn1, xn2;
     long long int yn, yn1, yn2;
@@ -411,29 +446,7 @@ binary computeD(const binary& e, const binary& fiN) // extended Euclidean alg.
     return convertDecToBin(yn);
 }
 
-binary RSA(const binary& base, const binary& exponent, const binary& mod)
-{
-    long long int result = 1;
-    long long int baseInt = convertBinToDec(base);
-    long long int exponentInt = convertBinToDec(exponent);
-    long long int modInt = convertBinToDec(mod);
-
-// modular exponentation
-    baseInt = baseInt % modInt;
-    while(exponentInt > 0)
-    {
-        if(exponentInt % 2 == 1)
-        {
-            result = (result * baseInt) % modInt;
-        }
-        exponentInt = exponentInt >> 1;
-        baseInt = (baseInt * baseInt) % modInt;
-    }
-
-    return convertDecToBin(result);
-}
-
-binary lsb(const binary& x) // least significant bit
+binary lsb(const binary& x)
 {
     binary result = initBinaryResult(1);
     result.setNumberAt(0,x.getNumberAt(0));
