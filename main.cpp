@@ -4,7 +4,7 @@
 
 #define SIZEOF_MESSAGE 8
 #define SECRETS true
-#define DEBUG false
+#define DEBUG true
 
 void printBinary(const binary&);
 bool generateSecret(); // generates a random bit
@@ -15,9 +15,8 @@ binary convertDecToBin(long long int); // decimal -> binary converter
 long long int convertBinToDec(const binary&); // binary -> decimal converter
 binary computeD(const binary&, const binary&); // extended Euclidean alg.
 binary RSA(const binary&, const binary&, const binary&);
-binary lsb(const binary&); // least significant bit
-binary chooseRs(const binary&, const binary&); // chooses which secret we want (now always returns first param)
-bool computeWantedSecret(const binary&, const binary&);
+bool lsb(const binary&); // least significant bit
+bool computeWantedSecret(const binary&, bool);
 void correctBit(binary&);
 
 int main()
@@ -29,6 +28,15 @@ int main()
     if(DEBUG || SECRETS)
     {
         std::cout << "Secrets: " << b0 << " " << b1 << std::endl << std::endl;
+    }
+	
+// choose
+	bool choice = generateSecret();
+	
+    if(DEBUG || SECRETS)
+    {
+        std::cout << "choice: " << choice << std::endl;;
+        std::cout << std::endl;
     }
 
 // generating primes
@@ -89,18 +97,29 @@ int main()
     }
 
 // compute c_s, c_{1-s} (cr)
-    binary cs = RSA(m, e, n);
+    binary real = RSA(m, e, n);
+	binary madeUp = generateRandom(real.size());
+
+	binary cs, cr;
+	
+	if(!choice)
+	{
+		cs = real;
+		cr = madeUp;
+	}
+	else
+	{
+		cs = madeUp;
+		cr = real;
+	}
+	
     if(DEBUG)
     {
         std::cout << "cs: " << convertBinToDec(cs) << std::endl;;
         printBinary(cs);
         std::cout << std::endl;
-    }
-
-    binary cr = generateRandom(cs.size());
-    if(DEBUG)
-    {
-        std::cout << "cr: " << convertBinToDec(cr) << std::endl;;
+		
+		std::cout << "cr: " << convertBinToDec(cr) << std::endl;;
         printBinary(cr);
         std::cout << std::endl;
     }
@@ -122,46 +141,34 @@ int main()
         std::cout << std::endl;
     }
 // compute r0, r1
-    binary r0 = lsb(ms);
+    bool r0 = lsb(ms);
     if(DEBUG)
     {
-        std::cout << "r0: " << std::endl;;
-        printBinary(r0);
+        std::cout << "r0: " << r0 << std::endl;;
         std::cout << std::endl;
     }
 
-    binary r1 = lsb(mr);
+    bool r1 = lsb(mr);
     if(DEBUG)
     {
-        std::cout << "r1: " << std::endl;;
-        printBinary(r1);
+        std::cout << "r1: " << r1 << std::endl;;
         std::cout << std::endl;
     }
 
 // compute r0+b0, r1+b1
-    binary r0b0 = r0 + b0;
-    binary r1b1 = r1 + b1;
-    correctBit(r0b0);
-    correctBit(r1b1);
+    bool r0b0 = r0 ^ b0;
+    bool r1b1 = r1 ^ b1;
     if(DEBUG)
     {
-        std::cout << "r0b0, r1b1: " << std::endl;
-        printBinary(r0b0);
-        printBinary(r1b1);
-        std::cout << std::endl;
-    }
-
-// choose rs
-    binary rs = chooseRs(r0b0, r1b1);
-    if(DEBUG)
-    {
-        std::cout << "rs: " << convertBinToDec(rs) << std::endl;;
-        printBinary(rs);
+        std::cout << "r0b0, r1b1: " << r0b0 << " " << r1b1 << std::endl;
         std::cout << std::endl;
     }
 
 // compute wanted secret
-    bool bs = computeWantedSecret(m, rs);
+    bool bs;
+
+	if(!choice) bs = computeWantedSecret(m, r0b0);
+	else bs = computeWantedSecret(m, r1b1);
     if(DEBUG || SECRETS)
     {
         std::cout << "Wanted secret: " << bs << std::endl;

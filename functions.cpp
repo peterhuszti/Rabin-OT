@@ -7,7 +7,6 @@
 
 #define PRIME_MAGNITUDE 10000
 #define ACCURACY 10
-#define CHOOSE 1
 
 void printBinary(const binary& x)
 {
@@ -313,7 +312,7 @@ bool isPrime(int x) // Miller-Rabin test
         }
         return false;
     }
-    return true;
+    return true; // probably
 }
 
 std::pair<int, int> generatePrimes() // generates two 2-digit distinct primes
@@ -395,17 +394,12 @@ binary generateRandom(int size, const binary& n = binary()) // generates random 
         for(int i=0; i<size; ++i)
         {
             result.setNumberAt(i, generateSecret());
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         resultInt = convertBinToDec(result);
     } while(resultInt == 0 || gcd(resultInt, nInt) != 1);
 
     return result;
-}
-
-binary chooseRs(const binary& a, const binary& b)
-{
-    if(CHOOSE == 1) return a;
-    else return b;
 }
 
 binary computeD(const binary& e, const binary& fiN)
@@ -446,11 +440,9 @@ binary computeD(const binary& e, const binary& fiN)
     return convertDecToBin(yn);
 }
 
-binary lsb(const binary& x)
+bool lsb(const binary& x)
 {
-    binary result = initBinaryResult(1);
-    result.setNumberAt(0,x.getNumberAt(0));
-    return result;
+	return x.getNumberAt(0);
 }
 
 void correctBit(binary& bin)
@@ -461,7 +453,7 @@ void correctBit(binary& bin)
     }
 }
 
-bool computeWantedSecret(const binary& m, const binary& rs)
+bool computeWantedSecret(const binary& m, bool rs)
 {
-    return !(lsb(rs).getNumberAt(0) == lsb(m).getNumberAt(0));
+    return !(rs == lsb(m));
 }
