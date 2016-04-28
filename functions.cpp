@@ -315,7 +315,7 @@ bool isPrime(int x) // Miller-Rabin test
     return true; // probably
 }
 
-std::pair<int, int> generatePrimes() // generates two 2-digit distinct primes
+std::pair<int, int> generatePrimes() // generates two distinct primes
 {
     int p, q;
     do
