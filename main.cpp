@@ -63,7 +63,7 @@ int main()
     binary fiN = n - p - q + 1;
     if(DEBUG)
     {
-        std::cout << "fiN: " << convertBinToDec(fiN) << std::endl;;
+        std::cout << "fiN: " << convertBinToDec(fiN) << std::endl;
         printBinary(fiN);
         std::cout << std::endl;
     }
@@ -82,7 +82,7 @@ int main()
     binary e = generateE(fiN);
     if(DEBUG)
     {
-        std::cout << "e: " << convertBinToDec(e) << std::endl;;
+        std::cout << "e: " << convertBinToDec(e) << std::endl;
         printBinary(e);
         std::cout << std::endl;
     }
@@ -91,7 +91,7 @@ int main()
     binary d = computeD(e, fiN);
     if(DEBUG)
     {
-        std::cout << "d: " << convertBinToDec(d) << std::endl;;
+        std::cout << "d: " << convertBinToDec(d) << std::endl;
         printBinary(d);
         std::cout << std::endl;
     }
@@ -99,7 +99,19 @@ int main()
 // compute c_s, c_{1-s} (cr)
     binary real = RSA(m, e, n);
 	binary madeUp = generateRandom(real.size());
-
+	
+	// if sender sends real data or random bits
+	bool sendReal = generateSecret();
+	if(!sendReal)
+	{
+		real = generateRandom(madeUp.size());
+	}
+	
+	if(DEBUG)
+	{
+		std::cout << "send real: " << sendReal << std::endl;
+	}
+	
 	binary cs, cr;
 	
 	if(!choice)
@@ -115,11 +127,11 @@ int main()
 	
     if(DEBUG)
     {
-        std::cout << "cs: " << convertBinToDec(cs) << std::endl;;
+        std::cout << "cs: " << convertBinToDec(cs) << std::endl;
         printBinary(cs);
         std::cout << std::endl;
 		
-		std::cout << "cr: " << convertBinToDec(cr) << std::endl;;
+		std::cout << "cr: " << convertBinToDec(cr) << std::endl;
         printBinary(cr);
         std::cout << std::endl;
     }
@@ -128,7 +140,7 @@ int main()
     binary ms = RSA(cs, d, n);
     if(DEBUG)
     {
-        std::cout << "ms: " << convertBinToDec(ms) << std::endl;;
+        std::cout << "ms: " << convertBinToDec(ms) << std::endl;
         printBinary(ms);
         std::cout << std::endl;
     }
@@ -136,7 +148,7 @@ int main()
     binary mr = RSA(cr, d, n);
     if(DEBUG)
     {
-        std::cout << "mr: " << convertBinToDec(mr) << std::endl;;
+        std::cout << "mr: " << convertBinToDec(mr) << std::endl;
         printBinary(mr);
         std::cout << std::endl;
     }
