@@ -35,7 +35,7 @@ bool powerOf2 (long long int x) // decides if the number is power of 2 or not
     return (x == 1);
 }
 
-binary convertDecToBin(long long int x)
+binary convertDecToBin(long long int x) // decimal -> binary converter
 {
     binary result;
 
@@ -85,7 +85,7 @@ binary convertDecToBin(long long int x)
     return result;
 }
 
-long long int convertBinToDec(const binary& x)
+long long int convertBinToDec(const binary& x) // binary -> decimal converter
 {
     long long int result = 0;
 
@@ -271,7 +271,7 @@ int generateRandom() // Mersenne twister
     return abs(x());
 }
 
-bool generateSecret()
+bool generateSecret() // generates a random bit
 {
     return generateRandom()%2;
 }
@@ -402,7 +402,7 @@ binary generateRandom(int size, const binary& n = binary()) // generates random 
     return result;
 }
 
-binary computeD(const binary& e, const binary& fiN)
+binary computeD(const binary& e, const binary& fiN) // extended Euclidean alg.
 {
     long long int xn, xn1, xn2;
     long long int yn, yn1, yn2;
@@ -440,7 +440,7 @@ binary computeD(const binary& e, const binary& fiN)
     return convertDecToBin(yn);
 }
 
-bool lsb(const binary& x)
+bool lsb(const binary& x) // least significant bit
 {
 	return x.getNumberAt(0);
 }

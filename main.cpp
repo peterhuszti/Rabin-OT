@@ -31,11 +31,11 @@ int main()
     }
 	
 // choose
-	bool choice = generateSecret();
+	const bool choice = generateSecret();
 	
     if(DEBUG || SECRETS)
     {
-        std::cout << "choice: " << choice << std::endl;;
+        std::cout << "choice: " << choice << std::endl;
         std::cout << std::endl;
     }
 
@@ -78,7 +78,7 @@ int main()
         std::cout << std::endl;
     }
 
-// generating e
+// generating e (public key)
     binary e = generateE(fiN);
     if(DEBUG)
     {
@@ -87,7 +87,7 @@ int main()
         std::cout << std::endl;
     }
 
-// compute d
+// compute d (private key)
     binary d = computeD(e, fiN);
     if(DEBUG)
     {
@@ -109,7 +109,7 @@ int main()
 	
 	if(DEBUG)
 	{
-		std::cout << "send real: " << sendReal << std::endl;
+		std::cout << "send real: " << sendReal << std::endl << std::endl;
 	}
 	
 	binary cs, cr;
@@ -156,14 +156,14 @@ int main()
     bool r0 = lsb(ms);
     if(DEBUG)
     {
-        std::cout << "r0: " << r0 << std::endl;;
+        std::cout << "r0: " << r0 << std::endl;
         std::cout << std::endl;
     }
 
     bool r1 = lsb(mr);
     if(DEBUG)
     {
-        std::cout << "r1: " << r1 << std::endl;;
+        std::cout << "r1: " << r1 << std::endl;
         std::cout << std::endl;
     }
 
